@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\RoomApplication;
 use App\Models\RoomAllocation;
 use App\Models\User;
+use App\Models\Message;
 use App\Services\Crypto\KeyManager;
 use App\Services\Crypto\ECCEngine;
 use App\Services\Crypto\RSAEngine;
@@ -299,12 +300,12 @@ class HostelController extends Controller
         try {
             $user = Auth::user();
             if (class_exists(\App\Models\MaintenanceTicket::class)) {
-                \App\Models\MaintenanceTicket::create([
-                    'user_id' => $user->id,
-                    'title' => $request->title,
-                    'description' => $request->description,
-                    'status' => 'pending'
-                ]);
+                $ticket = new \App\Models\MaintenanceTicket();
+                $ticket->user_id = $user->id;
+                $ticket->title = $request->title;
+                $ticket->description = $request->description;
+                $ticket->status = 'pending';
+                $ticket->save();
             }
 
             return response()->json(['message' => 'Maintenance ticket created successfully.'], 201);
@@ -360,6 +361,86 @@ class HostelController extends Controller
             return response()->json(['message' => 'Maintenance response saved successfully.'], 200);
         } catch (Exception $e) {
             return response()->json(['error' => 'Failed to update ticket: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get all chat messages with ECC decryption and Row MAC verification
+     */
+    public function getMessages()
+    {
+        try {
+            $messages = Message::with('user')->latest()->take(50)->get()->reverse();
+            $eccKeys = $this->kmm->getActiveKey('ecc');
+            $rsaKeys = $this->kmm->getActiveKey('rsa');
+            $privateKeyEcc = $eccKeys['private_key'];
+            $privateKeyRsa = $rsaKeys['private_key'];
+
+            $formattedMessages = [];
+            foreach ($messages as $msg) {
+                // Verify Row MAC integrity
+                $dataToAuthenticate = $msg->user_id . $msg->encrypted_message;
+                if (!$this->macEngine->verifyMAC($dataToAuthenticate, $this->rowIntegrityKey, $msg->row_mac)) {
+                    continue; // Skip tampered messages silently
+                }
+
+                // Decrypt message using ECC
+                $decryptedText = $this->decryptECCLongText($msg->encrypted_message, $privateKeyEcc);
+
+                // Decrypt sender username using RSA
+                $senderName = 'User #' . $msg->user_id;
+                if ($msg->user && $msg->user->encrypted_username) {
+                    try {
+                        $senderName = $this->decryptLongText($msg->user->encrypted_username, $privateKeyRsa);
+                    } catch (\Exception $e) {
+                        // Fallback
+                    }
+                }
+
+                $formattedMessages[] = [
+                    'id' => $msg->id,
+                    'user_id' => $msg->user_id,
+                    'sender_name' => $senderName,
+                    'role' => $msg->user->role ?? 'student',
+                    'message' => $decryptedText,
+                    'created_at' => $msg->created_at->diffForHumans()
+                ];
+            }
+
+            return response()->json(['messages' => array_values($formattedMessages)], 200);
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Failed to fetch messages: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Send a new chat message encrypted with ECC and protected with a Row MAC
+     */
+    public function sendMessage(Request $request)
+    {
+        $request->validate([
+            'message' => 'required|string|max:1000'
+        ]);
+
+        try {
+            $user = Auth::user();
+            $eccKeys = $this->kmm->getActiveKey('ecc');
+            $publicKey = $eccKeys['public_key'];
+
+            $encMessage = $this->encryptECCLongText($request->message, $publicKey);
+
+            $dataToAuthenticate = $user->id . $encMessage;
+            $rowMac = $this->macEngine->generateMAC($dataToAuthenticate, $this->rowIntegrityKey);
+
+            Message::create([
+                'user_id' => $user->id,
+                'encrypted_message' => $encMessage,
+                'row_mac' => $rowMac
+            ]);
+
+            return response()->json(['message' => 'Message sent successfully.'], 201);
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Cryptographic failure: ' . $e->getMessage()], 500);
         }
     }
 

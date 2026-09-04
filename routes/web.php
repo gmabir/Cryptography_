@@ -82,4 +82,8 @@ Route::middleware(['auth'])->group(function () {
     // Maintenance Ticket Routes
     Route::get('/api/hostel/maintenance', [HostelController::class, 'getMaintenanceTickets']);
     Route::post('/api/hostel/maintenance', [HostelController::class, 'storeMaintenanceTicket']);
+
+    //message
+    Route::get('/api/hostel/messages', [\App\Http\Controllers\HostelController::class, 'getMessages']);
+    Route::post('/api/hostel/messages', [\App\Http\Controllers\HostelController::class, 'sendMessage']);
 });

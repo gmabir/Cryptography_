@@ -178,3 +178,4 @@ async function submitResponse(e, id) {
 }
 </script>
 @endsection
+@include('components.chat')

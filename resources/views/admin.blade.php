@@ -201,3 +201,4 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 @endsection
+@include('components.chat')

@@ -403,3 +403,4 @@ async function loadMaintenanceTickets() {
 }
 </script>
 @endsection
+@include('components.chat')

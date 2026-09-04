@@ -60,10 +60,26 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/api/admin/approve-warden/{id}', [HostelController::class, 'approveWarden']);
     Route::get('/api/admin/users', [AuthController::class, 'getAllUsers']);
     Route::delete('/api/admin/users/{id}', [AuthController::class, 'deleteUser']);
-
+    
     // Student & Warden Hostel Management Routes
     Route::post('/api/hostel/apply', [HostelController::class, 'applyForRoom']);
-    Route::get('/api/hostel/my-allocation', [HostelController::class, 'myAccommodation']);
+    Route::get('/api/my-allocation', [HostelController::class, 'myAccommodation']);
     Route::get('/api/hostel/applications', [HostelController::class, 'viewApplications']);
     Route::post('/api/hostel/allocate', [HostelController::class, 'allocateRoom']);
+
+    // Warden Management API Routes
+    Route::get('/api/warden/applications', [HostelController::class, 'viewApplications']);
+    Route::post('/api/warden/allocations', [HostelController::class, 'allocateRoom']);
+    Route::get('/api/warden/maintenance', [HostelController::class, 'getWardenMaintenanceTickets']);
+    Route::post('/api/warden/maintenance/{id}/respond', [HostelController::class, 'respondMaintenanceTicket']);
+
+    // Profile Photo & Management Routes
+    Route::post('/api/hostel/profile-photo', [HostelController::class, 'uploadProfilePhoto']);
+    Route::get('/hostel/profile-photo/{filename}', [HostelController::class, 'viewProfilePhoto'])->name('hostel.profile.photo');
+    Route::get('/api/profile', [AuthController::class, 'getProfile']);
+    Route::post('/api/profile/update', [AuthController::class, 'updateProfile']);
+    
+    // Maintenance Ticket Routes
+    Route::get('/api/hostel/maintenance', [HostelController::class, 'getMaintenanceTickets']);
+    Route::post('/api/hostel/maintenance', [HostelController::class, 'storeMaintenanceTicket']);
 });

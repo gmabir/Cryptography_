@@ -151,20 +151,22 @@ class HostelController extends Controller
             $eccKeys = $this->kmm->getActiveKey('ecc');
             $publicKey = $eccKeys['public_key'];
 
+            $encBuilding = $this->encryptECCLongText($request->building_name, $publicKey);
+            $encRoom = $this->encryptECCLongText($request->room_number, $publicKey);
             $encNotes = $request->notes ? $this->encryptECCLongText($request->notes, $publicKey) : null;
 
             $dataToAuthenticate = $request->student_id . $request->building_name . $request->room_number . ($encNotes ?? '');
             $rowMac = $this->macEngine->generateMAC($dataToAuthenticate, $this->rowIntegrityKey);
 
-            RoomAllocation::updateOrCreate(
-                ['user_id' => $request->student_id],
-                [
-                    'building_name' => $request->building_name,
-                    'room_number' => $request->room_number,
-                    'encrypted_notes' => $encNotes,
-                    'row_mac' => $rowMac
-                ]
-            );
+            $allocation = RoomAllocation::firstOrNew(['user_id' => $request->student_id]);
+            $allocation->building_name = $request->building_name;
+            $allocation->room_number = $request->room_number;
+            $allocation->encrypted_building_name = $encBuilding;
+            $allocation->encrypted_room_number = $encRoom;
+            $allocation->encrypted_notes = $encNotes;
+            $allocation->row_mac = $rowMac;
+            $allocation->allocated_by = Auth::id();
+            $allocation->save();
 
             // Update application status if exists
             RoomApplication::where('user_id', $request->student_id)->update(['status' => 'allocated']);
@@ -223,7 +225,7 @@ class HostelController extends Controller
             
             // Recalculate Row MAC to match updated is_approved status
             $approvalFlag = '1';
-            $dataToAuthenticate = $warden->login_hash . $warden->encrypted_username . $warden->encrypted_email . $warden->password_salt . $warden->hashed_password . $warden->encrypted_two_factor_secret . $warden->role . $approvalFlag;
+            $dataToAuthenticate = $warden->login_hash . $warden->encrypted_username . $warden->encrypted_email . $warden->password_salt . $warden->hashed_password . $warden->encrypted_two_factor_secret . $warden->role . $approvalFlag . ($warden->profile_photo ?? '') . ($warden->encrypted_phone ?? '') . ($warden->encrypted_student_id ?? '') . ($warden->encrypted_address ?? '');
             $warden->row_mac = $this->macEngine->generateMAC($dataToAuthenticate, $this->rowIntegrityKey);
 
             $warden->save();
@@ -231,6 +233,133 @@ class HostelController extends Controller
             return response()->json(['message' => 'Warden account approved successfully.'], 200);
         } catch (Exception $e) {
             return response()->json(['error' => 'Failed to approve warden: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * USER/STUDENT: Upload or update profile photo with Row MAC update
+     */
+    public function uploadProfilePhoto(Request $request)
+    {
+        $request->validate([
+            'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
+        ]);
+
+        try {
+            $user = Auth::user();
+
+            // Store file in storage/app/public/profile-photos
+            $path = $request->file('photo')->store('profile-photos', 'public');
+            $user->profile_photo = $path;
+
+            // Recalculate Row MAC to maintain cryptographic integrity matching AuthController fields
+            $approvalFlag = (string)($user->is_approved ?? 0);
+            $dataToAuthenticate = $user->login_hash . $user->encrypted_username . $user->encrypted_email . $user->password_salt . $user->hashed_password . $user->encrypted_two_factor_secret . $user->role . $approvalFlag . ($user->profile_photo ?? '') . ($user->encrypted_phone ?? '') . ($user->encrypted_student_id ?? '') . ($user->encrypted_address ?? '');
+            
+            $user->row_mac = $this->macEngine->generateMAC($dataToAuthenticate, $this->rowIntegrityKey);
+            $user->save();
+
+            return response()->json([
+                'message' => 'Profile photo uploaded successfully.',
+                'photo_url' => asset('storage/' . $path)
+            ], 200);
+
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Failed to upload photo: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * STUDENT ONLY: View maintenance tickets
+     */
+    public function getMaintenanceTickets()
+    {
+        try {
+            $user = Auth::user();
+            if (class_exists(\App\Models\MaintenanceTicket::class)) {
+                $requests = \App\Models\MaintenanceTicket::where('user_id', $user->id)->latest()->get();
+                return response()->json(['requests' => $requests], 200);
+            }
+            return response()->json(['requests' => []], 200);
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Failed to fetch tickets: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * STUDENT ONLY: Store a new maintenance ticket
+     */
+    public function storeMaintenanceTicket(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string|max:1000',
+        ]);
+
+        try {
+            $user = Auth::user();
+            if (class_exists(\App\Models\MaintenanceTicket::class)) {
+                \App\Models\MaintenanceTicket::create([
+                    'user_id' => $user->id,
+                    'title' => $request->title,
+                    'description' => $request->description,
+                    'status' => 'pending'
+                ]);
+            }
+
+            return response()->json(['message' => 'Maintenance ticket created successfully.'], 201);
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Failed to create ticket: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * WARDEN/ADMIN ONLY: View all maintenance tickets
+     */
+    public function getWardenMaintenanceTickets()
+    {
+        try {
+            if (class_exists(\App\Models\MaintenanceTicket::class)) {
+                $requests = \App\Models\MaintenanceTicket::latest()->get();
+                $formatted = $requests->map(function($req) {
+                    return [
+                        'id' => $req->id,
+                        'student_id' => $req->user_id,
+                        'title' => $req->title,
+                        'description' => $req->description,
+                        'status' => $req->status,
+                        'response' => $req->response ?? null,
+                    ];
+                });
+                return response()->json(['requests' => $formatted], 200);
+            }
+            return response()->json(['requests' => []], 200);
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Failed to fetch tickets: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * WARDEN/ADMIN ONLY: Respond to a maintenance ticket
+     */
+    public function respondMaintenanceTicket(Request $request, $id)
+    {
+        $request->validate([
+            'response' => 'required|string|max:1000',
+            'status' => 'required|in:open,in_progress,resolved,pending'
+        ]);
+
+        try {
+            if (class_exists(\App\Models\MaintenanceTicket::class)) {
+                $ticket = \App\Models\MaintenanceTicket::findOrFail($id);
+                $ticket->response = $request->response;
+                $ticket->status = $request->status;
+                $ticket->save();
+            }
+
+            return response()->json(['message' => 'Maintenance response saved successfully.'], 200);
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Failed to update ticket: ' . $e->getMessage()], 500);
         }
     }
 
@@ -267,5 +396,19 @@ class HostelController extends Controller
             $text .= $this->rsaEngine->decrypt($chunk, $privateKey);
         }
         return $text;
+    }
+
+    /**
+     * Serve profile photo securely
+     */
+    public function viewProfilePhoto($filename)
+    {
+        $path = storage_path('app/public/profile-photos/' . $filename);
+
+        if (!file_exists($path)) {
+            abort(404);
+        }
+
+        return response()->file($path);
     }
 }

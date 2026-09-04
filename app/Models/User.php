@@ -28,6 +28,7 @@ class User extends Authenticatable
         'hashed_password',
         'encrypted_two_factor_secret',
         'row_mac',
+        'profile_photo',
         'is_approved'
     ];
 

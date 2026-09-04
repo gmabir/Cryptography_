@@ -1,38 +1,24 @@
 <!-- Messenger-Style Floating Chat Widget -->
-<div class="fixed bottom-5 right-5 z-50">
-    <!-- Floating Toggle Button -->
-    <button 
-        id="chat-toggle-btn" 
-        class="w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 transform hover:scale-105 focus:outline-none cursor-pointer"
-        aria-label="Open Messenger Chat"
-    >
-        <svg id="chat-icon-open" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-        </svg>
-        <svg id="chat-icon-close" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-    </button>
-
-    <!-- Chat Popup Box (Hidden by default) -->
+<div class="fixed bottom-6 right-6 z-[9999]">
+    <!-- Chat Popup Box -->
     <div 
         id="chat-popup-window" 
-        class="hidden absolute bottom-20 right-0 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col transition-all duration-300 transform origin-bottom-right scale-95 opacity-0"
-        style="height: 480px;"
+        style="display: none; height: 480px;"
+        class="absolute bottom-20 right-0 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex-col"
     >
         <!-- Header -->
-        <div class="bg-gradient-to-r from-blue-600 to-indigo-700 px-4 py-3 flex items-center justify-between text-white">
-            <div class="flex items-center gap-2">
+        <div class="bg-gradient-to-r from-blue-700 via-blue-800 to-indigo-900 px-4 py-3 flex items-center justify-between text-white shrink-0 shadow-sm">
+            <div class="flex items-center gap-2.5">
                 <div class="relative">
-                    <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center font-bold text-xs">💬</div>
-                    <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 border-2 border-blue-600 rounded-full"></span>
+                    <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-sm">💬</div>
+                    <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 border-2 border-blue-800 rounded-full"></span>
                 </div>
                 <div>
-                    <h3 class="font-bold text-sm leading-tight">Hostel Community Chat</h3>
-                    <p class="text-[10px] text-blue-100">ECC Encrypted & Secure</p>
+                    <h3 class="font-bold text-sm leading-tight text-white">Hostel Community Chat</h3>
+                    <p class="text-[10px] text-blue-200 font-medium">ECC Encrypted & Verified</p>
                 </div>
             </div>
-            <button id="chat-close-popup" class="text-white/80 hover:text-white p-1 rounded-lg transition">
+            <button type="button" onclick="toggleMessengerChat()" class="text-white/80 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition cursor-pointer">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -45,7 +31,7 @@
         </div>
 
         <!-- Message Input Form -->
-        <form id="chat-form" class="p-3 bg-white border-t border-slate-100 flex gap-2 items-center">
+        <form id="chat-form" class="p-3 bg-white border-t border-slate-100 flex gap-2 items-center shrink-0">
             @csrf
             <input 
                 type="text" 
@@ -65,119 +51,129 @@
             </button>
         </form>
     </div>
+
+    <!-- Floating Toggle Button -->
+    <button 
+        type="button"
+        onclick="toggleMessengerChat()"
+        id="chat-toggle-btn" 
+        class="w-14 h-14 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white rounded-full shadow-2xl flex items-center justify-center transition-transform focus:outline-none cursor-pointer"
+        aria-label="Toggle Messenger Chat"
+    >
+        <!-- Open Icon (Chat Bubble) -->
+        <svg id="chat-icon-open" xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+        </svg>
+        <!-- Close Icon (X) -->
+        <svg id="chat-icon-close" xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" style="display: none;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+    </button>
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    const toggleBtn = document.getElementById("chat-toggle-btn");
-    const closeBtn = document.getElementById("chat-close-popup");
-    const popupWindow = document.getElementById("chat-popup-window");
+let isChatOpen = false;
+let chatPollInterval = null;
+
+function toggleMessengerChat() {
+    const popup = document.getElementById("chat-popup-window");
     const openIcon = document.getElementById("chat-icon-open");
     const closeIcon = document.getElementById("chat-icon-close");
-    
-    const chatContainer = document.getElementById("chat-messages-container");
-    const chatForm = document.getElementById("chat-form");
-    const chatInput = document.getElementById("chat-input-message");
-    const sendBtn = document.getElementById("chat-send-btn");
+    const input = document.getElementById("chat-input-message");
 
-    if (!toggleBtn || !popupWindow) return;
+    if (!popup) return;
 
-    let isOpen = false;
-    let pollInterval = null;
+    isChatOpen = !isChatOpen;
 
-    function toggleChat() {
-        isOpen = !isOpen;
-        if (isOpen) {
-            popupWindow.classList.remove("hidden");
-            setTimeout(() => {
-                popupWindow.classList.remove("scale-95", "opacity-0");
-                popupWindow.classList.add("scale-100", "opacity-100");
-            }, 10);
-            openIcon.classList.add("hidden");
-            closeIcon.classList.remove("hidden");
-            chatInput.focus();
-            fetchMessages();
-            if (!pollInterval) {
-                pollInterval = setInterval(fetchMessages, 4000);
-            }
-        } else {
-            popupWindow.classList.remove("scale-100", "opacity-100");
-            popupWindow.classList.add("scale-95", "opacity-0");
-            setTimeout(() => {
-                popupWindow.classList.add("hidden");
-            }, 300);
-            openIcon.classList.remove("hidden");
-            closeIcon.classList.add("hidden");
-            if (pollInterval) {
-                clearInterval(pollInterval);
-                pollInterval = null;
-            }
+    if (isChatOpen) {
+        popup.style.display = "flex";
+        openIcon.style.display = "none";
+        closeIcon.style.display = "block";
+        if (input) input.focus();
+        fetchChatMessages();
+        if (!chatPollInterval) {
+            chatPollInterval = setInterval(fetchChatMessages, 4000);
+        }
+    } else {
+        popup.style.display = "none";
+        openIcon.style.display = "block";
+        closeIcon.style.display = "none";
+        if (chatPollInterval) {
+            clearInterval(chatPollInterval);
+            chatPollInterval = null;
         }
     }
+}
 
-    toggleBtn.addEventListener("click", toggleChat);
-    closeBtn.addEventListener("click", toggleChat);
+function fetchChatMessages() {
+    if (!isChatOpen) return;
+    fetch('/api/hostel/messages', {
+        headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.messages) {
+            renderChatMessages(data.messages);
+        }
+    })
+    .catch(err => console.error("Error loading chat:", err));
+}
 
-    function fetchMessages() {
-        if (!isOpen) return;
-        fetch('/api/hostel/messages', {
-            headers: {
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.messages) {
-                renderMessages(data.messages);
-            }
-        })
-        .catch(err => console.error("Error loading chat messages:", err));
+function renderChatMessages(messages) {
+    const container = document.getElementById("chat-messages-container");
+    if (!container) return;
+
+    if (messages.length === 0) {
+        container.innerHTML = '<div class="text-center text-slate-400 my-auto">No messages yet. Say hello!</div>';
+        return;
     }
 
-    function renderMessages(messages) {
-        if (messages.length === 0) {
-            chatContainer.innerHTML = '<div class="text-center text-slate-400 my-auto">No messages yet. Start the secure conversation!</div>';
-            return;
-        }
+    let html = '';
+    messages.forEach(msg => {
+        let badgeClass = 'bg-slate-100 text-slate-700';
+        if (msg.role === 'admin') badgeClass = 'bg-purple-100 text-purple-800';
+        if (msg.role === 'warden') badgeClass = 'bg-amber-100 text-amber-800';
+        if (msg.role === 'student') badgeClass = 'bg-blue-100 text-blue-800';
 
-        let html = '';
-        messages.forEach(msg => {
-            let roleBadgeClass = 'bg-slate-100 text-slate-700';
-            if (msg.role === 'admin') roleBadgeClass = 'bg-purple-50 text-purple-700 border border-purple-200';
-            if (msg.role === 'warden') roleBadgeClass = 'bg-amber-50 text-amber-700 border border-amber-200';
-            if (msg.role === 'student') roleBadgeClass = 'bg-blue-50 text-blue-700 border border-blue-200';
-
-            html += `
-                <div class="flex flex-col space-y-1">
-                    <div class="flex items-center space-x-1.5">
-                        <span class="font-semibold text-[11px] text-slate-800">${escapeHtml(msg.sender_name)}</span>
-                        <span class="px-1 py-0.2 text-[8px] font-bold uppercase tracking-wider rounded ${roleBadgeClass}">${msg.role}</span>
-                        <span class="text-[9px] text-slate-400">${msg.created_at}</span>
-                    </div>
-                    <div class="p-2.5 bg-white border border-slate-100 rounded-2xl shadow-2xs text-xs text-slate-700 max-w-[85%] break-words">
-                        ${escapeHtml(msg.message)}
-                    </div>
+        html += `
+            <div class="flex flex-col space-y-1">
+                <div class="flex items-center space-x-1.5">
+                    <span class="font-semibold text-[11px] text-slate-800">${escapeChatHtml(msg.sender_name)}</span>
+                    <span class="px-1.5 py-0.2 text-[8px] font-bold uppercase tracking-wider rounded ${badgeClass}">${msg.role}</span>
+                    <span class="text-[9px] text-slate-400">${msg.created_at}</span>
                 </div>
-            `;
-        });
+                <div class="p-2.5 bg-white border border-slate-100 rounded-2xl shadow-xs text-xs text-slate-700 max-w-[85%] break-words">
+                    ${escapeChatHtml(msg.message)}
+                </div>
+            </div>
+        `;
+    });
 
-        const isScrolledToBottom = chatContainer.scrollHeight - chatContainer.clientHeight <= chatContainer.scrollTop + 50;
-        chatContainer.innerHTML = html;
-        if (isScrolledToBottom || chatContainer.innerHTML === '') {
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
+    const isAtBottom = container.scrollHeight - container.clientHeight <= container.scrollTop + 50;
+    container.innerHTML = html;
+    if (isAtBottom) {
+        container.scrollTop = container.scrollHeight;
     }
+}
 
-    function escapeHtml(text) {
-        const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
-        return text.replace(/[&<>"']/g, function(m) { return map[m]; });
-    }
+function escapeChatHtml(text) {
+    const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+    return text.replace(/[&<>"']/g, m => map[m]);
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    const chatForm = document.getElementById("chat-form");
+    if (!chatForm) return;
 
     chatForm.addEventListener("submit", function (e) {
         e.preventDefault();
-        const messageText = chatInput.value.trim();
-        if (!messageText) return;
+        const input = document.getElementById("chat-input-message");
+        const sendBtn = document.getElementById("chat-send-btn");
+        const text = input.value.trim();
+        if (!text) return;
 
         sendBtn.disabled = true;
         sendBtn.innerText = '...';
@@ -191,16 +187,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 'Accept': 'application/json',
                 'X-CSRF-TOKEN': token
             },
-            body: JSON.stringify({ message: messageText })
+            body: JSON.stringify({ message: text })
         })
-        .then(response => response.json())
-        .then(data => {
-            chatInput.value = '';
-            fetchMessages();
+        .then(res => res.json())
+        .then(() => {
+            input.value = '';
+            fetchChatMessages();
         })
-        .catch(err => {
-            alert('Failed to send encrypted message.');
-        })
+        .catch(() => alert('Failed to send encrypted message.'))
         .finally(() => {
             sendBtn.disabled = false;
             sendBtn.innerText = 'Send';

@@ -3,7 +3,6 @@
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-    <!-- Top Greeting & Header Bar -->
     <div class="relative overflow-hidden bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 rounded-2xl shadow-xl p-8 text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
         
@@ -25,7 +24,7 @@
                 </div>
                 <p class="text-blue-200/80 text-sm mt-1 flex items-center gap-2">
                     <svg class="w-4 h-4 text-emerald-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-                    Secured with RSA & ECC hybrid encryption with active row integrity verification.
+                    
                 </p>
             </div>
         </div>
@@ -35,20 +34,12 @@
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                 Upload Photo
             </button>
-            <form action="/api/logout" method="POST" id="logoutForm">
-                @csrf
-                <button type="submit" class="bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-100 px-4 py-2 rounded-xl text-sm font-medium transition-all backdrop-blur-sm">
-                    Logout
-                </button>
-            </form>
         </div>
     </div>
 
-    <!-- Feedback Banners -->
     <div id="dashboard-alert" class="hidden p-4 rounded-xl text-sm font-medium border shadow-sm"></div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Left Column: Profile Card -->
         <div class="lg:col-span-1 space-y-6">
             <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 relative overflow-hidden">
                 <div class="flex justify-between items-center border-b border-slate-100 pb-4 mb-4">
@@ -88,7 +79,6 @@
                     </div>
                 </div>
 
-                <!-- Edit Profile Form -->
                 <form id="updateProfileForm" class="hidden space-y-4 pt-2">
                     <h3 class="font-bold text-xs text-slate-500 uppercase tracking-wider">Update Details</h3>
                     <div>
@@ -111,9 +101,7 @@
             </div>
         </div>
 
-        <!-- Right Column: Room & Tickets -->
         <div class="lg:col-span-2 space-y-8">
-            <!-- Room Application & Accommodation Card -->
             <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
                 <h2 class="text-lg font-bold text-slate-800 border-b border-slate-100 pb-4 mb-6 flex items-center gap-2">
                     <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
@@ -144,7 +132,6 @@
                 </form>
             </div>
 
-            <!-- Maintenance Tickets Card -->
             <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
                 <h2 class="text-lg font-bold text-slate-800 border-b border-slate-100 pb-4 mb-6 flex items-center gap-2">
                     <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A40.015 40.015 0 017 6.083c3.2 0 6.3 1.1 8.8 3.1"></path></svg>
@@ -152,7 +139,6 @@
                 </h2>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <!-- Raise Ticket Form -->
                     <form id="maintenanceForm" class="space-y-4 md:col-span-1 md:border-r md:border-slate-100 md:pr-6">
                         <h3 class="font-bold text-xs text-slate-500 uppercase tracking-wider">Raise New Ticket</h3>
                         <div>
@@ -166,7 +152,6 @@
                         <button type="submit" class="w-full bg-slate-900 text-white py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-800 shadow-sm transition-all">Submit Ticket</button>
                     </form>
 
-                    <!-- Ticket List -->
                     <div class="md:col-span-2">
                         <h3 class="font-bold text-xs text-slate-500 uppercase tracking-wider mb-3">Ticket History</h3>
                         <div id="tickets-list" class="space-y-3 max-h-96 overflow-y-auto pr-1">
@@ -403,4 +388,3 @@ async function loadMaintenanceTickets() {
 }
 </script>
 @endsection
-@include('components.chat')

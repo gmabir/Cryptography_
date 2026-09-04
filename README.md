@@ -1,60 +1,46 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# SecureHostel Management System (CSE447 Project)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A secure, full-stack university hostel management web application built for **CSE447: Cryptography and Cryptanalysis (Spring 2026, BRAC University)**. The system incorporates custom-built, from-scratch cryptographic engines to ensure complete data confidentiality, user integrity, and strict access control without relying on built-in framework encryption helpers.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🚀 Key Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+* **Custom Asymmetric Encryption (RSA & ECC):** Implemented completely from scratch. RSA is used for user profile parameters and identification records, while Elliptic Curve Cryptography (ECC) handles hostel room applications, medical preferences, and accommodation data.
+* **Row-Level Integrity (MAC):** Custom `MACEngine` implementing secure hashing-based Message Authentication Codes to detect any unauthorized modifications or database tampering.
+* **Two-Factor Authentication (2FA):** Multi-step login flow requiring primary credential validation followed by a time-sensitive 6-digit OTP dispatched directly to the user's Gmail inbox.
+* **Password Hashing & Salting:** Secure per-user salt generation and hashing managed via `AuthEngine` to prevent dictionary and rainbow table attacks.
+* **Key Management Module (KMM):** Dedicated key manager handling generation, active storage, and rotation protocols.
+* **Role-Based Access Control (RBAC):** Distinct administrative, warden, and student privilege boundaries for managing applications, maintenance tickets, and accounts.
+* **Secure Messenger Chat:** Real-time floating community chat widget featuring end-to-end ECC message encryption.
+* **Modern UI:** Styled using Tailwind CSS with an interactive responsive layout, glassmorphic touches, and a campus-themed background login portal.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## 🛠️ Technology Stack
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+* **Backend Framework:** Laravel (PHP)
+* **Frontend:** Blade Templates, Tailwind CSS, JavaScript (Fetch API)
+* **Database:** MySQL
+* **Cryptographic Layer:** Custom PHP Services (`RSAEngine`, `ECCEngine`, `MACEngine`, `KeyManager`, `AuthEngine`)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+## ⚙️ Prerequisites & System Requirements
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Before running the project, ensure your environment meets the following requirements:
+* PHP >= 8.2
+* Composer
+* Node.js & NPM (optional, if compiling custom assets)
+* MySQL / MariaDB
 
-### Premium Partners
+---
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## 📥 Installation & Setup Instructions
 
-## Contributing
+Follow these steps to set up and run the project locally:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-# Cryptography_
+1. **Clone the Repository:**
+   ```bash
+   git clone [https://github.com/your-username/secure-hostel-management.git](https://github.com/your-username/secure-hostel-management.git)
+   cd secure-hostel-management
